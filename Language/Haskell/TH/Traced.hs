@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings                                     #-}
-module Language.Haskell.TH.Traced (QTrace, QState, tracing, traced, unsafeLiftQ) where
+module Language.Haskell.TH.Traced (QTrace, QState (..), tracing, tracing_, traced, unsafeLiftQ) where
 import           Control.Monad.State.Strict
 import           Data.Dynamic
 import           Data.IORef
@@ -68,6 +68,10 @@ traced (Q a) = a
 -- | Running @'Q'@ computation with state logging and hooking @'getQ'@ and @'putQ'@.
 tracing :: Q a -> Q (a, QState)
 tracing (Q act) = runStateT (runQTrace act) (QState [] [] [])
+
+-- | @'tracing'@ with internal log discarded.
+tracing_ :: Q a -> Q a
+tracing_ (Q act) = evalStateT (runQTrace act) (QState [] [] [])
 
 -- | Lift @'Q'@ computation to @'QTrace'@, WITHOUT logging and snatching.
 unsafeLiftQ :: Q a -> QTrace a
